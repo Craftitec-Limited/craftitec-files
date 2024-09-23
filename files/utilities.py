@@ -1,7 +1,6 @@
 from json import loads
 import pandas as pd
-import numpy as np
-from io import BytesIO
+import io
 
 async def read_from_file(
         filename: str,
@@ -17,17 +16,24 @@ async def read_from_file(
         content (bytes): The content of the file in bytes
     """
     try:
-        bytes_io = BytesIO(content)
-        if filename.endswith(".xlsx"):
-            mass_entries = pd.read_excel(content, engine='openpyxl')
-        elif filename.endswith(".csv"):
-            mass_entries = pd.read_csv(content, engine='c')
-        else:
+        file_split = filename.split(".")
+        
+        if file_split[-1] not in ["xlsx","csv"]:
             raise Exception({
                 "error":"Invalid file format",
                 "tag":"invalid"
             })
-        return mass_entries
+        
+        if file_split[-1] == "csv":
+            string_io = io.StringIO(content.decode("utf-8"))
+            mass_entries = pd.read_csv(string_io, skipinitialspace=True,engine="python",sep=' *, *')
+        
+            return mass_entries
+        if file_split[-1] == "xlsx":
+            string_io = io.BytesIO(content)
+            mass_entries = pd.read_excel(string_io)
+
+            return mass_entries
     except FileNotFoundError:
         raise Exception({
                 "error":"File not found",
