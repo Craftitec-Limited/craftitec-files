@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
     required = f.read().splitlines()
 
 setup(
-    name="media",
+    name="craftitec-files",
     version="0.0.3",
     description="""Description pending.""",
     long_description=long_description,
